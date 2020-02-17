@@ -1,6 +1,6 @@
 # CSC645 Spring 2020 Computer Networks
 Welcome to Computer Networks!. Please modify this README file with the following info: 
-1. Your name, and student id here
+1. Amir Anjomshoaa, 918710278
 2. Update this table of assignments. Set to done after one of the assignments is completed:
 
 | Assignment               | Completed     |
