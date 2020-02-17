@@ -1,3 +1,7 @@
+Grade:
+```
+Passed
+```
 # Lab #2: TCP Client Socket 
 # Version 3.6
 Please read this README file before class and use this as a reference during the lab session. 
