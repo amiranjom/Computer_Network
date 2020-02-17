@@ -1,4 +1,7 @@
-Grader Comment: Passed.  
+Grade:
+```
+Passed.  
+```
 
 # Getting Started with Python
 # Version 3.6
