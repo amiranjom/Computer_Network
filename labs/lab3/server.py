@@ -44,8 +44,9 @@ class Server(object):
         # TODO: bind host and port to this server socket
         :return: VOID
         """
+        MAX_NUM_CONN = 10
         self.serversocket.bind((self.host,self.port))
-        
+        self.serversocket.listen(MAX_NUM_CONN)
 
     def _listen(self):
         """
@@ -55,7 +56,6 @@ class Server(object):
         """
         try:
             self._bind()
-            self.serversocket.listen(MAX_NUM_CONN)
             print("Server listening at ip ", self.host, " / port ", self.port)
             
         except:
@@ -96,6 +96,7 @@ class Server(object):
                # TODO: send assigned id to the new client. hint: call the send_clientid(..) method
                self._handler(clienthandler) # receive, process, send response to client.
             except:
+               # handle exceptions here
                raise
 
     def _send_clientid(self, clienthandler, clientid):
@@ -110,8 +111,8 @@ class Server(object):
 
 
     def send(self, clienthandler, data):
-        serialezedData = pickle.dumps(data) 
-        clienthandler.send(serialezedData)
+        serialezed_data = pickle.dumps(data) 
+        clienthandler.send(serialezed_data)
         """
         # TODO: Serialize the data with pickle.
         # TODO: call the send method from the clienthandler to send data
