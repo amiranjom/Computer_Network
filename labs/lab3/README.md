@@ -1,4 +1,5 @@
 # LAB #3: TCP Server Socket. 
+# Version 3.6
 Please read this README file before class and use this as a reference during the lab session. 
 
 In this lab, you will create a TCP Server socket. This socket accepts clients client connections, and provide services
