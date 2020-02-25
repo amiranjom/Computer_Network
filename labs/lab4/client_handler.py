@@ -12,6 +12,10 @@
 #
 ########################################################################################################################
 import threading
+import pickle
+import socket
+
+
 
 class ClientHandler(object):
     """
@@ -31,21 +35,15 @@ class ClientHandler(object):
         self.clienthandler = clienthandler
 
     def print_lock(self):
-        """
-        TODO: create a new print lock
-        :return: the lock created
-        """
-        # your code here.
-        return None # modify the return to return a the lock created
+        return threading.Lock() # modify the return to return a the lock created
 
     def process_client_data(self):
-        """
-        TODO: receives the data from the client
-        TODO: prepares the data to be printed in console
-        TODO: create a print lock
-        TODO: adquire the print lock
-        TODO: prints the data in server console
-        TODO: release the print lock
-        :return: VOID
-        """
-        pass # remove this line after implemented.
+        while True:
+            data = self.clienthandler.recv(4096)
+            deserialezedData = pickle.loads(data)
+            if not data: break
+            lock = self.print_lock()
+            lock.acquire()
+            print("Client #", self.clientid ," this message : ", deserialezedData)
+            self.clienthandler.send(pickle.dumps("Server Got the Message"))
+            lock.release()
