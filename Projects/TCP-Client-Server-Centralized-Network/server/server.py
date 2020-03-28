@@ -13,22 +13,28 @@
 from builtins import object
 import socket
 from threading import Thread
+import threading
 import pickle
+from client_handler import ClientHandler
 
 class Server(object):
 
     MAX_NUM_CONN = 10
 
-    def __init__(self, ip_address='127.0.0.1', port=12005):
+    def __init__(self, ip_address='127.0.0.1', port=12006):
         """
         Class constructor
         :param ip_address:
         :param port:
         """
         # create an INET, STREAMing socket
+        self.host = ip_address
+        self.port = port
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clients = {} # dictionary of clients handlers objects handling clients. format {clientid:client_handler_object}
+        self.activeClients = {}
         # TODO: bind the socket to a public host, and a well-known port
+        self.serversocket.bind((self.host,self.port))
 
 
     def _listen(self):
@@ -38,9 +44,12 @@ class Server(object):
         i.e "Listening at 127.0.0.1/10000"
         :return: VOID
         """
-        #TODO: your code here
-        pass
-
+        try:
+            self.serversocket.listen(self.MAX_NUM_CONN)
+            print("Server Listening at ", self.host, " and port : ", self.port)
+        except:
+            self.serversocket.close()
+            print("Server failed to listen!!!")
 
     def _accept_clients(self):
         """
@@ -51,10 +60,12 @@ class Server(object):
             try:
                 #TODO: Accept a client
                 #TODO: Create a thread of this client using the client_handler_threaded class
-                pass
+                clientSocket, address = self.serversocket.accept()
+                Thread(target=self.client_handler_thread, args=(clientSocket,address)).start()
             except:
                 #TODO: Handle exceptions
-                pass
+                print("Error Occured, Raised")
+                raise                
 
 
     def send(self, clientsocket, data):
@@ -64,17 +75,21 @@ class Server(object):
         :param data:
         :return:
         """
-        pass
+        serialezed_data = pickle.dumps(data) 
+        clientsocket.send(serialezed_data)
 
 
     def receive(self, clientsocket, MAX_BUFFER_SIZE=4096):
+        
         """
         TODO: Deserializes the data with pickle
         :param clientsocket:
         :param MAX_BUFFER_SIZE:
         :return: the deserialized data
         """
-        return None
+        data = clientsocket.recv(MAX_BUFFER_SIZE)
+        deserialezedData = pickle.loads(data)
+        return deserialezedData
 
     def send_client_id(self, clientsocket, id):
         """
@@ -85,6 +100,9 @@ class Server(object):
         clientid = {'clientid': id}
         self.send(clientsocket, clientid)
 
+    def getActiveClients(self):
+        return self.activeClients
+
     def client_handler_thread(self, clientsocket, address):
         """
         Sends the client id assigned to this clientsocket and
@@ -92,11 +110,32 @@ class Server(object):
         See also ClientHandler Class
         :param clientsocket:
         :param address:
-        :return: a client handler object.
+        :return: void
         """
-        self.send_client_id(clientsocket)
+
+        #self.send_client_id(clientsocket,address[1])
         #TODO: create a new client handler object and return it
-        return None
+        clienthandler = ClientHandler(self,clientsocket,address)
+        lock = threading.Lock()
+        lock.acquire()
+        data = self.receive(clientsocket)
+
+        if 'clientName' in data:
+
+            self.activeClients[data['clientName']] = address[1]
+
+            self.clients[address[1]] = clienthandler
+
+            print(self.activeClients)
+                
+            self.send(clientsocket,{'showMenu':True})
+
+            lock.release()
+                 
+
+
+        
+        
 
 
     def run(self):

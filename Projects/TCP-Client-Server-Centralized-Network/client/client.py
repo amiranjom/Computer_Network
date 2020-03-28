@@ -11,6 +11,7 @@
 ########################################################################
 import socket
 import pickle
+from menu import Menu
 
 class Client(object):
     """
@@ -35,7 +36,14 @@ class Client(object):
         return self.clientid
 
     
-    def connect(self, host="127.0.0.1", port=12000):
+    def connect(self):
+        #self.host = input("Enter the server IP Address:")
+        #self.port = input("Enter the server port:")
+
+        self.host = "127.0.0.1"
+        self.port = 12006
+        self.clientName = input("Enter a name for your id: ")
+
         """
         TODO: Connects to a server. Implements exception handler if connection is resetted. 
 	    Then retrieves the cliend id assigned from server, and sets
@@ -43,16 +51,60 @@ class Client(object):
         :param port: 
         :return: VOID
         """
-        pass
+        try:
+            self.clientSocket.connect((self.host,self.port))
+            
+            self.send({'clientName': self.clientName})
+
+            print("Successfully connected to server with IP: ", self.host , "and port: ", self.port)
+            
+            while True: # client is put in listening mode to retrieve data from server.
+
+                data = self.receive()
+
+                if 'clientid' in data:
+
+                        self.clientid = data['clientid']
+
+                        print("Your Client Name is : ", self.clientName)
+
+                        print("Your Client id is : ", self.clientid)
+
+                elif 'showMenu' in data:
+
+                    print(self.getMenu())
+
+                    self.send(input())
+
+                elif not data:
+
+                    break
+
+                else:
+
+                    print(data)
+
+            self.close()
+        except Exception as e:
+            print(e)
 		
 	
+    def getMenu(self):
+
+        menu = Menu(self)
+
+        data = menu.getMenu()
+
+        return data
+
     def send(self, data):
         """
         TODO: Serializes and then sends data to server
         :param data:
         :return:
         """
-        pass
+        data = pickle.dumps(data) # serialized data
+        self.clientSocket.send(data)
 
     def receive(self, MAX_BUFFER_SIZE=4090):
         """
@@ -60,7 +112,8 @@ class Client(object):
         :param MAX_BUFFER_SIZE: Max allowed allocated memory for this data
         :return: the deserialized data.
         """
-        return None
+        raw_data = self.clientSocket.recv(MAX_BUFFER_SIZE) # deserializes the data from server
+        return pickle.loads(raw_data)
         
 
     def close(self):
@@ -68,7 +121,8 @@ class Client(object):
         TODO: close the client socket
         :return: VOID
         """
-        pass
+        self.client.shutdown(socket.SHUT_RDWR)
+        self.client.close()
 
 		
 

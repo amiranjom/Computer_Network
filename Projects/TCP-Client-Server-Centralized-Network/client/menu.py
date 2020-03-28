@@ -66,21 +66,17 @@ class Menu(object):
         # TODO: your code here.
         return option
 
-    def get_menu(self):
-        """
-        TODO: Inplement the following menu
-        ****** TCP CHAT ******
-        -----------------------
-        Options Available:
-        1. Get user list
-        2. Sent a message
-        3. Get my messages
-        4. Create a new channel
-        5. Chat in a channel with your friends
-        6. Disconnect from server
-        :return: a string representing the above menu.
-        """
-        menu = ""
+    def getMenu(self):
+        menu = """\n****** TCP CHAT ******
+-----------------------
+Options Available:
+1. Get user list
+2. Sent a message
+3. Get my messages
+4. Create a new channel
+5. Chat in a channel with your friends
+6. Disconnect from server
+"""
         # TODO: implement your code here
         return menu
 

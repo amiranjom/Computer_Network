@@ -10,7 +10,9 @@
 #                   Note: Must run the server before the client.
 ########################################################################
 import pickle
-import menu
+
+from threading import Thread
+import threading
 
 class ClientHandler(object):
     """
@@ -33,14 +35,20 @@ class ClientHandler(object):
         self.unreaded_messages = []
 
     def _sendMenu(self):
+        menu = """
+        ****** TCP CHAT ******
+        -----------------------
+        Options Available:
+        1. Get user list
+        2. Sent a message
+        3. Get my messages
+        4. Create a new channel
+        5. Chat in a channel with your friends
+        6. Disconnect from server
         """
-        Already implemented for you.
-        sends the menu options to the client after the handshake between client and server is done.
-        :return: VOID
-        """
-        menu = Menu()
-        data = {'menu': menu}
-        self.server.send(self.clientsocket, data)
+
+        self.server.send(self.clientsocket,menu)
+    
 
     def process_options(self):
         """
@@ -49,6 +57,7 @@ class ClientHandler(object):
         In this method, I already implemented the server validation of the option selected.
         :return:
         """
+
         data = self.server.receive(self.clientsocket)
         if 'option_selected' in data.keys() and 1 <= data['option_selected'] <= 6: # validates a valid option selected
             option = data['option_selected']
@@ -76,7 +85,7 @@ class ClientHandler(object):
         TODO: send the list of users (clients ids) that are connected to this server.
         :return: VOID
         """
-        return None
+        return self.server.getActiveClients()
 
     def _save_message(self, recipient_id, message):
         """

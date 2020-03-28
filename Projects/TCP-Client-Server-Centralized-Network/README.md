@@ -2,7 +2,7 @@
 
 Please use this README file to provide the following documentation for this project:
 
-* Your name and student id
+* Amir R. Anjomshoaa
 * General description of the project (a few sentences)
 * If you used external Python modules/libraries. Provide a requeriments.txt file  
 * Python version and compatibility issues (if any). Your project must be run exactelly as in the running instructions described below in this file

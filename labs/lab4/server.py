@@ -18,7 +18,7 @@
 import socket
 import pickle
 from threading import Thread
-import client_handler
+from client_handler import ClientHandler
 
 class Server(object):
     """
@@ -45,9 +45,9 @@ class Server(object):
         # TODO: bind host and port to this server socket
         :return: VOID
         """
-        MAX_NUM_CONN = 10
+
         self.serversocket.bind((self.host,self.port))
-        self.serversocket.listen(MAX_NUM_CONN)
+        self.serversocket.listen(self.MAX_NUM_CONN)
 
     def _listen(self):
         """
@@ -64,8 +64,8 @@ class Server(object):
             print("Server failed to listen!!!")
 
     def thread_client(self, clienthandler, addr):
-        ch =  client_handler.ClientHandler(self,clienthandler,addr)
-        data = ch.process_client_data()
+        clienthandler =  ClientHandler(self,clienthandler,addr)
+        data = clienthandler.process_client_data()
         
         """
         #TODO: receive, process, send response to the client using this handler.
