@@ -11,7 +11,10 @@
 ########################################################################
 import socket
 import pickle
+
+import sys, os
 from menu import Menu
+
 
 class Client(object):
     """
@@ -41,7 +44,7 @@ class Client(object):
         #self.port = input("Enter the server port:")
 
         self.host = "127.0.0.1"
-        self.port = 12006
+        self.port = 12007
         self.clientName = input("Enter a name for your id: ")
 
         """
@@ -69,33 +72,38 @@ class Client(object):
                         print("Your Client Name is : ", self.clientName)
 
                         print("Your Client id is : ", self.clientid)
+                        menu = self.getMenu()
+                        #self.getUserSelection(menu)
+                        menu.process_user_data()
 
-                elif 'showMenu' in data:
 
-                    print(self.getMenu())
+                break
 
-                    self.send(input())
 
-                elif not data:
+            #Call a method that takes user input
+            
+                
 
-                    break
-
-                else:
-
-                    print(data)
-
+    
+            
             self.close()
+
         except Exception as e:
-            print(e)
+            raise
+
+    def getUserSelection(self,menu):
+        while True:
+            menu.process_user_data()
+            print(menu.get_menu())
 		
-	
     def getMenu(self):
 
         menu = Menu(self)
 
-        data = menu.getMenu()
+        menu.show_menu()
 
-        return data
+        return menu
+    
 
     def send(self, data):
         """
@@ -121,8 +129,8 @@ class Client(object):
         TODO: close the client socket
         :return: VOID
         """
-        self.client.shutdown(socket.SHUT_RDWR)
-        self.client.close()
+        self.clientSocket.shutdown(socket.SHUT_RDWR)
+        self.clientSocket.close()
 
 		
 

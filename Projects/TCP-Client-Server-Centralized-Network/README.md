@@ -3,11 +3,12 @@
 Please use this README file to provide the following documentation for this project:
 
 * Amir R. Anjomshoaa
-* General description of the project (a few sentences)
+* Designed TCP Server for this project. We established a three way handshake connection between server and the clients at first. The server offers multiple services to its users such as sending messages, chat option and getting active users. 
 * If you used external Python modules/libraries. Provide a requeriments.txt file  
+* Python Version 3.7
 * Python version and compatibility issues (if any). Your project must be run exactelly as in the running instructions described below in this file
 * Attach screenshots or videos to this file to ilustrate how your program works for all the options in the menu. 
-* A few sentences about all the challenges you found during the implementation of this project and how you overcame them. Please be honest here. 
+* The main challenges I had in this project was mainting threads for all the clients. My server sometimes failed to provide the menu to the new users coming into the server. The second part was being able to maintain chats. The brodcast part of my server did not got through as i expected to help me send the message to all the users.  
 
 ## Note that failure to provide the above docs will result in a 30% deduction in your final grade for this project. 
 

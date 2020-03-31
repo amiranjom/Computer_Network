@@ -13,6 +13,7 @@
 # Usage :           menu = Menu() # creates object
 #
 ########################################################################################
+from threading import Thread
 
 class Menu(object):
     """
@@ -25,13 +26,10 @@ class Menu(object):
     data sent by the client, and send responses back.
     """
 
-    def __init__(self, client):
-        """
-        Class constractor
-        :param client: the client object on client side
-        """
-        self.client = client
+    def __init__(self,client):
+         self.client = client
 
+    
     def set_client(self, client):
         self.client = client
 
@@ -42,7 +40,11 @@ class Menu(object):
         TODO: 3. print the menu in client console.
         :return: VOID
         """
-        pass
+        self.client.send({'reqMenu':True})
+        data = self.client.receive()
+        if 'showMenu' in data:
+             print(self.get_menu())
+      
 
     def process_user_data(self):
         """
@@ -50,23 +52,47 @@ class Menu(object):
         :param option:
         :return: VOID
         """
-        data = {}
-        option = self.option_selected()
-        if 1 <= option <= 6: # validates a valid option
-           # TODO: implement your code here
-           # (i,e  algo: if option == 1, then data = self.menu.option1, then. send request to server with the data)
-           pass
+        while True:
+            option = self.option_selected()
+            if 1 <= int(option) <= 6: # validates a valid option
+                if int(option) == 1:
+                    data = self.option1()
+                    print("Users in server:")
+                    print(data)
+                elif int(option) == 2:
+                    data = self.option2()
+                    print(data)
+                elif int(option) == 3:
+                    data = self.option3()
+                    for message in data:
+                        print("Total Unread Messages : ", len(data))
+                        print (data, "\n")
+                elif int(option) == 4:
+                    self.option4()
+                    print(data)
+                elif int(option) == 5:
+                    data = self.option5()
+                elif int(option) == 6:
+                    data = self.option6()
+                    break
+                print(self.get_menu())
+            # TODO: implement your code here
+            # (i,e  algo: if option == 1, then data = self.menu.option1, then. send request to server with the data)
+            else:
+                print("Invalid Option")
+                print(self.get_menu())
+
 
     def option_selected(self):
         """
         TODO: takes the option selected by the user in the menu
         :return: the option selected.
         """
-        option = 0
+        option = input("Your option <enter a number>: ")
         # TODO: your code here.
         return option
 
-    def getMenu(self):
+    def get_menu(self):
         menu = """\n****** TCP CHAT ******
 -----------------------
 Options Available:
@@ -86,9 +112,8 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 1.
         """
-        data = {}
-        data['option'] = 1
-        # Your code here.
+        self.client.send({'option_selected': 1})
+        data = self.client.receive()
         return data
 
     def option2(self):
@@ -97,8 +122,12 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 2.
         """
-        data = {}
-        data['option'] = 2
+        message = input("Enter your message:")
+        recipient_id = input("Enter recipent id:")
+        data = {'recipient_id': recipient_id, 'message': message}
+        self.client.send({'option_selected': 2})
+        self.client.send(data)
+        data = self.client.receive()
         # Your code here.
         return data
 
@@ -108,9 +137,8 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 3.
         """
-        data = {}
-        data['option'] = 3
-        # Your code here.
+        self.client.send({'option_selected': 3})
+        data = self.client.receive()
         return data
 
     def option4(self):
@@ -119,10 +147,35 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 4.
         """
-        data = {}
-        data['option'] = 4
-        # Your code here.
-        return data
+        
+        data = input("Enter new chat room id:")
+        self.client.send({'option_selected': 4,'room_id':data, 'name': self.client.clientName})
+        self.start_chat(data)
+      
+        
+
+    def start_chat(self,data):
+
+        while True:
+            data = self.client.receive()
+            print(data)
+            if data == 'quit':
+                break
+            if 'start' in data:
+                data = self.client.receive()
+                print(data)
+                Thread(target=self.input_chat, args=()).start()
+        
+
+        
+    def input_chat(self):
+        
+        while True:
+            msg = input()
+            self.client.send(msg)
+            if msg == 'quit':
+                break
+
 
     def option5(self):
         """
@@ -130,10 +183,22 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 5.
         """
-        data = {}
-        data['option'] = 5
+        data = input("Enter Room Id: ")
+        self.client.send({'option_selected': 5,'room_id':data, 'name': self.client.clientName})
+        self.listen_chat()
         # Your code here.
         return data
+
+    def listen_chat(self):
+        print("Welcome To the Chat Room")
+        Thread(target=self.input_chat, args=()).start()
+        while True:
+            data = self.client.receive()
+            if data == 'quit':
+                break
+            print(data)
+            
+            
 
     def option6(self):
         """
@@ -141,6 +206,7 @@ Options Available:
         :param option:
         :return: a python dictionary with all the data needed from user in option 6.
         """
+        self.client.send({'option_selected': 6})
         data = {}
         data['option'] = 6
         # Your code here.

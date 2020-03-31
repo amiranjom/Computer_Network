@@ -16,12 +16,14 @@ from threading import Thread
 import threading
 import pickle
 from client_handler import ClientHandler
+import sys, os
+
 
 class Server(object):
 
     MAX_NUM_CONN = 10
 
-    def __init__(self, ip_address='127.0.0.1', port=12006):
+    def __init__(self, ip_address='127.0.0.1', port=12007):
         """
         Class constructor
         :param ip_address:
@@ -35,6 +37,7 @@ class Server(object):
         self.activeClients = {}
         # TODO: bind the socket to a public host, and a well-known port
         self.serversocket.bind((self.host,self.port))
+        self.chat_rooms = {}
 
 
     def _listen(self):
@@ -68,6 +71,13 @@ class Server(object):
                 raise                
 
 
+    def add_chatroom(self,room_id,user):
+        self.chat_rooms[room_id] = []
+        users = self.chat_rooms[room_id]            
+        users.append(user)
+        
+    def get_chatroom(self):
+        return self.chat_rooms
     def send(self, clientsocket, data):
         """
         TODO: Serializes the data with pickle, and sends using the accepted client socket.
@@ -98,10 +108,27 @@ class Server(object):
         :return:
         """
         clientid = {'clientid': id}
+
         self.send(clientsocket, clientid)
 
+    def setActiveClients(self,clientName,clientId):
+        
+        self.activeClients[clientName] = clientId
+    
+        print(self.activeClients)
+
+    def setClients(self,clientId,clientHandler):
+        
+        self.clients[clientId] = clientHandler
+
+        print(self.clients)
+
     def getActiveClients(self):
+
         return self.activeClients
+    
+    def getClients(self):
+        return self.clients
 
     def client_handler_thread(self, clientsocket, address):
         """
@@ -116,6 +143,9 @@ class Server(object):
         #self.send_client_id(clientsocket,address[1])
         #TODO: create a new client handler object and return it
         clienthandler = ClientHandler(self,clientsocket,address)
+        clienthandler.clientSetUp()
+        
+        """     
         lock = threading.Lock()
         lock.acquire()
         data = self.receive(clientsocket)
@@ -132,7 +162,7 @@ class Server(object):
 
             lock.release()
                  
-
+            """
 
         
         
