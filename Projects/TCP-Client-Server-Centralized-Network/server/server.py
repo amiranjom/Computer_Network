@@ -50,8 +50,9 @@ class Server(object):
         try:
             self.serversocket.listen(self.MAX_NUM_CONN)
             print("Server Listening at ", self.host, " and port : ", self.port)
+            print(self.MAX_NUM_CONN)
         except:
-            self.serversocket.close()
+            self.serversocke.close()
             print("Server failed to listen!!!")
 
     def _accept_clients(self):

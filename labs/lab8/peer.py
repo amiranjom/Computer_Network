@@ -8,14 +8,21 @@ and uploading process in the network, and also which challenges you may encounte
 when implementing those functionalities. 
 """
 from server import Server
+from client import Client
+from threading import Thread
+import threading
+
 class Peer (Server):
 
-    SERVER_PORT = 5000
-    CLIENT_MIN_PORT_RANGE = 5001
-    CLIENT_MAX_PORT_RANGE = 5010
+    SERVER_PORT = 12000
+    CLIENT_MIN_PORT_RANGE = 12001
+    CLIENT_MAX_PORT_RANGE = 12010
 
     def __init__(self, server_ip_address):
-        Server.__init__(server_ip_address, self.SERVER_PORT)
+        print(server_ip_address)
+        Server.__init__(self,server_ip_address, self.SERVER_PORT)
+        Client.__init__(self)
+        self.run_server()
 
 
     def run_server(self):
@@ -23,7 +30,7 @@ class Peer (Server):
         Already implemented. puts this peer to listen for connections requests from other peers
         :return: VOID
         """
-        self.run()
+        Thread(target=self.run, args=()).start()
 
 
     def _connect_to_peer(self, client_port_to_bind, peer_ip_address):
@@ -38,11 +45,15 @@ class Peer (Server):
         :return: VOID
         """
         try:
-            pass # your code here
+            clientNew = Client()
+            
+            #To be Implemented in the Client Class
+            clientNew._bind(client_port_to_bind,peer_ip_address)
+            clientNew.connect(peer_ip_address,client_port_to_bind)
         except:
-            pass # handle exceptions here
+            raise
 
-    def connect(self, peers_ip_addresses):
+    def connect(self, peers_ip_addresses=["127.0.0.1","127.0.0.1"]):
         """
         TODO: Initialize a temporal variable to the min client port range, then
               For each peer ip address, call the method _connect_to_peer()
@@ -53,5 +64,20 @@ class Peer (Server):
         :param peers: list of peer´s ip addresses in the network
         :return: VOID
         """
-        pass # your code here
+       
+        min_port = self.CLIENT_MIN_PORT_RANGE
+        max_port = self.CLIENT_MAX_PORT_RANGE
+        for peer_Ip in peers_ip_addresses:
+            try:
+                if min_port == max_port:
+                    break
+                else:
+                    Thread(target=self._connect_to_peer, args=(min_port, peer_Ip)).start()
+                    min_port += 1  
+            except Exception as e:
+                min_port -= 1
+                print(e)
+
+
+
 
