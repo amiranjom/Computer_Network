@@ -56,38 +56,15 @@ class PWP(object):
         if message_id is self.BITFIELD:
             pass
         elif message_id is self.INTERESTED:
-            print(Interested())
+            print()
     
     
     def intersted(self):
         print("Here")
         
 
-class Interested(object):
-    """
-    The interested message is fix length and has no payload other than the
-    message identifiers. It is used to notify each other about interest in
-    downloading pieces.
-    Message format:
-        <len=0001><id=2>
-    """
-
-    def encode(self) -> bytes:
-        """
-        Encodes this object instance to the raw bytes representing the entire
-        message (ready to be transmitted).
-        """
-        return struct.pack('>Ib',
-                           1,  # Message length
-                           1)
-
-    def __str__(self):
-        return 'Interested'
-
-
-
 
 if __name__ == '__main__':
     pwp = PWP()
-    pwp.handshake("slsldkdkfjfjdkdjdkdj","slsldkdkfjfjdkdjdkdj")
+    print(pwp.handshake("slsldkdkfjfjdkdjdkdj","slsldkdkfjfjdkdjdkdj"))
     pwp.messages(1,2,1)

@@ -33,6 +33,7 @@ class Peer (Server):
         Thread(target=self.run, args=()).start()
 
 
+
     def _connect_to_peer(self, client_port_to_bind, peer_ip_address):
         """
         TODO: Create a new client object and bind the port given as a
@@ -50,6 +51,7 @@ class Peer (Server):
             #To be Implemented in the Client Class
             clientNew._bind(client_port_to_bind,peer_ip_address)
             clientNew.connect(peer_ip_address,client_port_to_bind)
+            
         except:
             raise
 
