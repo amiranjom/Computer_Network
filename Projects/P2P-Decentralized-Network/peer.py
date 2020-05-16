@@ -7,6 +7,7 @@ from server import Server
 from threading import Thread
 from client import Client
 import torrent_parser as tp
+from requests import get
 import uuid
 
 
