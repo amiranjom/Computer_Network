@@ -113,7 +113,8 @@ class Peer(Server,Client):
         tracker_ip_port = parsed_torrent['announce'].split(":")
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
-        print(self.get_ip())
+        ip = get('https://api.ipify.org').text
+        print(ip)
 
 
     def run(self):
