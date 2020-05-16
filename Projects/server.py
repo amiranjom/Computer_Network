@@ -29,7 +29,7 @@ from threading import Thread
 
 class Server(object):
 
-    def __init__(self, ip_address='127.0.0.1', port=5000):
+    def __init__(self, ip_address='127.0.0.1', port=12000):
         # create an INET, STREAMing socket
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # bind the socket to a public host, and a well-known port
@@ -100,10 +100,13 @@ class Server(object):
         """
 
         server_ip = str(address[0] + "/" + str(self.port))
-        self.client_id = address[1]
-        data = {'clientid': self.client_id, 'server_ip': server_ip}
+        client_id = address[1]
+        data = {'clientid': client_id, 'server_ip': server_ip}
         self._send(clientsocket, data)
 
-    def _run(self):
+    def run(self):
         self._listen()
         self._accept_clients()
+
+server = Server()
+server.run()

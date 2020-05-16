@@ -6,11 +6,10 @@
 from server import Server
 from threading import Thread
 from client import Client
-import torrent_parser as tp
 import uuid
 
 
-class Peer(Server,Client):
+class Peer(Server):
     """
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
@@ -25,9 +24,7 @@ class Peer(Server,Client):
         :param server_ip_address: used when need to use the ip assigned by LAN
         """
         Server.__init__(self)  # inherits methods from the server
-        Client.__init__(self)  # inherit methods from the client
         self.server_ip_address = server_ip_address
-
         self.id = uuid.uuid4()  # creates unique id for the peer
 
     def run_server(self):
@@ -95,43 +92,13 @@ class Peer(Server,Client):
                 # the client connected. incrementing the client port here prevents
                 # wasting ports in the range of ports assigned if the client connection fails.
                 client_port += 1
-    
-    def connect_to_tracker(self):
-        try:
-            self.client_tracker = Client()
-            self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
-            return True
-        except Exception as error:
-            return False
-
-    
-    def parse_torrent(self,torrent_name):
-        parsed_torrent = tp.parse_torrent_file(torrent_name)
-        print("Torrent File " + torrent_name +
-         " was parsed and the announce address is : " + parsed_torrent['announce'])
-        tracker_ip_port = parsed_torrent['announce'].split(":")
-        self.tracker_ip = tracker_ip_port[0]
-        self.tracker_port = tracker_ip_port[1]
-
-
-    def run(self):
-        #torrent_file = str(input("Enter the torrent file name with extension (.torrent): "))
-        torrent_file = "age.torrent"
-        self.parse_torrent(torrent_file)
-        if(self.connect_to_tracker()):
-            print("Connected to the Tracker")
-        else:
-            print("The Tracker is Offline Try Again Later!!!")
-
 
 
 # testing
 peer = Peer()
-peer.run()
-
-#print("Peer: " + str(peer.id) + " running its server: ")
-#peer.run_server()
-#print("Peer: " + str(peer.id) + " running its clients: ")
+print("Peer: " + str(peer.id) + " running its server: ")
+peer.run_server()
+print("Peer: " + str(peer.id) + " running its clients: ")
 # Two ways of testing this:
 #  Locally (same machine):
 #      1. Run two peers in the same machine using different ports. Comment out the next two lines (only servers run)
@@ -139,8 +106,8 @@ peer.run()
 #  Using different machines
 #      1. Run two peers in different machines.
 #      2. Run a peer in this machine.
-#peer_ips = ['127.0.0.1/7001', '127.0.0.1/7000']  # this list will be sent by the tracker in your P2P assignment
-#peer.connect(peer_ips)
+peer_ips = ['127.0.0.1/7001', '127.0.0.1/7000']  # this list will be sent by the tracker in your P2P assignment
+peer.connect(peer_ips)
 
 """ Output running this in the same machine """
 # Peer: 6d223864-9cd7-4327-ad02-7856d636af66 running its server:
