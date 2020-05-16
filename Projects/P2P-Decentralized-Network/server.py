@@ -35,6 +35,7 @@ class Server(object):
         # bind the socket to a public host, and a well-known port
         self.ip = ip_address
         self.port = port
+
         self.serversocket.bind((ip_address, port))
 
     def _listen(self):
@@ -103,6 +104,11 @@ class Server(object):
         self.client_id = address[1]
         data = {'clientid': self.client_id, 'server_ip': server_ip}
         self._send(clientsocket, data)
+
+    def get_ip(self):
+        hostname = socket.gethostname()
+        ip= socket.gethostbyname(hostname)
+        return ip
 
     def _run(self):
         self._listen()
