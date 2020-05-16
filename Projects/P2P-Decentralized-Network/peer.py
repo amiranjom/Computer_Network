@@ -99,11 +99,12 @@ class Peer(Server,Client):
     
     def connect_to_tracker(self):
         if(self.external_ip == self.tracker_ip):
-            print("Im the tracker")
+            server = Server(self.tracker_ip,int(self.tracker_port))
+            Thread(target=server.run()).start()
         else:
             print("Not the tracker")
         
-        
+
         """
         try:
             self.client_tracker = Client()
