@@ -98,13 +98,20 @@ class Peer(Server,Client):
                 client_port += 1
     
     def connect_to_tracker(self):
+        if(self.external_ip == self.tracker_ip):
+            print("Im the tracker")
+        else:
+            print("Not the tracker")
+        
+        
+        """
         try:
             self.client_tracker = Client()
             self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
             return True
         except Exception as error:
             return False
-
+        """
     
     def parse_torrent(self,torrent_name):
         parsed_torrent = tp.parse_torrent_file(torrent_name)
@@ -113,8 +120,8 @@ class Peer(Server,Client):
         tracker_ip_port = parsed_torrent['announce'].split(":")
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
-        ip = get('https://api.ipify.org').text
-        print(ip)
+        self.external_ip = get('https://api.ipify.org').text
+
 
 
     def run(self):
