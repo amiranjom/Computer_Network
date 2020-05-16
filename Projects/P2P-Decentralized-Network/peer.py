@@ -40,7 +40,7 @@ class Peer(Server,Client):
         """
         try:
             # must thread the server, otherwise it will block the main thread
-            Thread(target=self.run, daemon=True).start()
+            Thread(target=self._run, daemon=True).start()
         except Exception as error:
             print(error)  # server failed to run
 
@@ -104,11 +104,18 @@ class Peer(Server,Client):
             print("You're the Announce, Setting Up the Tracker")
             server = Server(self.get_ip(),int(self.tracker_port))
             Thread(target=server._run).start()
-            tracker = Tracker(server)
+            self.tracker_announce = Tracker(server)
+            #init for the announce
+            ##setting up the blocks and initbitfield and pieces and ready to send
+            return True
         else:
             try:
                 self.client_tracker = Client()
                 self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
+                #Handshake
+                #Call the tracker and ask for all the peers IP address.
+                #[127:5000,127:5001]
+                return False
             except Exception as error: 
                 print(error)   
 
@@ -137,9 +144,9 @@ class Peer(Server,Client):
         torrent_file = "age.torrent"
         self.parse_torrent(torrent_file)
         if(self.connect_to_tracker()):
-            print("Connected to the Tracker")
+            print("Tracker Implementation")
         else:
-            print("The Tracker is Offline Try Again Later!!!")
+            print("Peer Implementation")
 
 
 
