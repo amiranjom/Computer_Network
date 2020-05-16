@@ -1,9 +1,11 @@
 # CSC645 Computer Networks
+#TESTT
 # Lab 8 Solution: peer.py
 # Author: Jose Ortiz
 # client and server files are from lab 2. However, the server supports multi-threading like in lab 4
 
 from server import Server
+from tracker import Tracker
 from threading import Thread
 from client import Client
 import torrent_parser as tp
@@ -99,11 +101,16 @@ class Peer(Server,Client):
     
     def connect_to_tracker(self):
         if(self.external_ip == self.tracker_ip):
-            server = Server(self.tracker_ip,int(self.tracker_port))
-            Thread(target=server.run()).start()
+            print("You're the Announce, Setting Up the Tracker")
+            server = Server(self.get_ip(),int(self.tracker_port))
+            Thread(target=server._run).start()
+            tracker = Tracker(server)
         else:
-            print("Not the tracker")
-        
+            try:
+                self.client_tracker = Client()
+                self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
+            except Exception as error: 
+                print(error)   
 
         """
         try:
