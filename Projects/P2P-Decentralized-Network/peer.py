@@ -124,7 +124,8 @@ class Peer(Server,Client):
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
         self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
-        self.info_hash = hashlib.sha1(bencoding.bencode(parsed_torrent['info'])).hexdigest()
+        self.info_hash = hashlib.sha1(bencoding.bencode(parsed_torrent['info'])).digest()
+        print(self.info_hash)
         self.external_ip = get('https://api.ipify.org').text
 
 
@@ -139,6 +140,7 @@ class Peer(Server,Client):
                 print("Outside")
                 if self.info_hash == data['handshake']['info_hash']:
                     print("Inside")
+
                     swarm = Swarm(self.fileName)
                     swarm = self.announce_tracker.add_swarm(swarm)
                     swarm.add_peer(host+":"+port)
