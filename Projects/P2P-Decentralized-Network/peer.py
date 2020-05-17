@@ -217,12 +217,8 @@ class Peer(Server,Client):
             #Server Side of the Peer
             self.server = Server()
             self.server._listen()
-            print("Peer Tracker External Ip: " , self.external_ip)
-            #PWP SetUp Handshake and Tracker Message
-            pwp = PWP(self.num_pieces,0)
-            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+            print("Peer Tracker External Ip: ", self.external_ip)
            
-            
             
             #Peer also needs to create a server to add to the swarm
                 #Create the Tracker Request message and send it to other peers 
@@ -234,6 +230,11 @@ class Peer(Server,Client):
             #Connect to the announce Ip address from torrent file
             
             #Send the handshake Message (Create Instance PWP)
+             #PWP SetUp Handshake and Tracker Message
+            pwp = PWP(self.num_pieces,0)
+            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+           
+            
             print(self.handshake_message)
             self.client_tracker.send({'handshake': self.handshake_message})
             print(pwp.message())
