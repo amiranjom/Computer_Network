@@ -10,20 +10,13 @@ class Tracker(object):
         self.server = server
         self.swarm = []
         #Server.__init__(self,self.IP_ADDRESS,self.PORT)
-    
+    #swarm = ["age.txt"]
     def add_swarm(self,swarm):
-        self.swarm.append(swarm)
-"""
-    def run(self):
-        self._listen()
-        while True:
-            try:
-                # accept connections from outside
-                (clientsocket, address) = self.serversocket.accept()
-                # now do something with the clientsocket
-                # in this case, we'll pretend this is a threaded server
-                Thread(target=self.client_thread, args=(clientsocket, address)).start()
-                print("Client: " + str(address[1]) + " just connected")
-            except Exception as error:
-                print(error)
-"""
+        for s in self.swarm:
+            if swarm.get_file_name() == s.get_file_name():
+                print("Already Exist")
+                return s
+                pass
+            else:
+                self.swarm.append(swarm)
+                return swarm

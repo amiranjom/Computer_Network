@@ -128,7 +128,7 @@ class Peer(Server,Client):
         self.external_ip = get('https://api.ipify.org').text
 
 
-    def peer_handler(self,server,clientsocket):
+    def peer_handler(self,server,clientsocket,host,port):
 
         while True:
             data = server._receive(clientsocket)
@@ -138,7 +138,10 @@ class Peer(Server,Client):
             if 'handshake' in data:
                 if self.info_hash == data['handshake']['info_hash']:
                     swarm = Swarm(self.fileName)
-                    self.announce_tracker.add_swarm(swarm)
+                    swarm = self.announce_tracker.add_swarm(swarm)
+                    swarm.add_peer(host+":"+port)
+                    print(swarm.peers)
+                    
                     #Tracker PWP to be setup and the bitfield to be setup
                     #Create a data_structure in swarm to send back to peer
             if not data: break
@@ -171,9 +174,10 @@ class Peer(Server,Client):
                     (clientsocket, address) = server.serversocket.accept()
                     # now do something with the clientsocket
                     # in this case, we'll thread the handler for each peer. peer <-> tracker (announce)
-                    Thread(target=self.peer_handler, args=(server,clientsocket)).start()
                     host,port = clientsocket.getpeername()
-                    print(host,port)
+                    Thread(target=self.peer_handler, args=(server,clientsocket, host, port)).start()
+                    
+                    print("Peer Connectd: ", host,port)
                     data = {'peerId': address[1]}
                     server._send(clientsocket,data)
                     print("Peer: " + str(address[1]) + " just connected")

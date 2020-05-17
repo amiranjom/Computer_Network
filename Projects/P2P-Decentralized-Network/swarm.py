@@ -14,6 +14,5 @@ class Swarm(object):
         return self.peers
 
     def get_file_name(self):
-    
         return self.fileName
 
