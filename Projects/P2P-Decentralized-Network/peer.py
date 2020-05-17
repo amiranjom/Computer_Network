@@ -10,7 +10,7 @@ from tracker import Tracker
 from threading import Thread
 from client import Client
 from swarm import Swarm
-from pwp import PWP
+from PWP import PWP
 import torrent_parser as tp
 from requests import get
 import bencoding
