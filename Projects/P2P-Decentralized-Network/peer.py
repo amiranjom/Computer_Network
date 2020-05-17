@@ -141,17 +141,14 @@ class Peer(Server,Client):
                 #Compare it with the info_hash
                 #If the same, setup the swarm for that specific file 
             if 'handshake' in data:
-                print("Outside")
                 if True:
                     lock = threading.Lock()
                     lock.acquire()
-                    print("Inside")
                     swarm = Swarm(self.fileName)
                     swarm = self.announce_tracker.add_swarm(swarm)
                     swarm.add_peer((str(host)+":"+str(port)))
-                    print(swarm.get_peers())
+                    print("List of the peer in this swarm : " + self.fileName + " : " + swarm.get_peers())
                     lock.release()
-                    
                     #Tracker PWP to be setup and the bitfield to be setup
                     #Create a data_structure in swarm to send back to peer
             if not data: break

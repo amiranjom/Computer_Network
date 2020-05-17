@@ -12,26 +12,11 @@ class Tracker(object):
         #Server.__init__(self,self.IP_ADDRESS,self.PORT)
     #swarm = ["age.txt"]
     def add_swarm(self,swarm):
-        print(swarm)
-        print(self.swarm)
-        print(swarm.get_peers())
         for i in self.swarm:
             if swarm.get_file_name() == i.get_file_name():
-                print("already exist")
                 return i
             else:
-                print("does not exist")
                 self.swarm.append(swarm)
                 return swarm
         self.swarm.append(swarm)
         return swarm
-"""
-        for s in self.swarm:
-            if swarm.get_file_name() == s.get_file_name():
-                print("Already Exist")
-                return s
-                pass
-            else:
-                self.swarm.append(swarm)
-                return swarm
-"""
