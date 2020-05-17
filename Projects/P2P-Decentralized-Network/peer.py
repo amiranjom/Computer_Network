@@ -3,7 +3,6 @@
 # Lab 8 Solution: peer.py
 # Author: Jose Ortiz
 # client and server files are from lab 2. However, the server supports multi-threading like in lab 4
-
 import math
 from server import Server
 from tracker import Tracker
@@ -19,7 +18,9 @@ import hashlib
 import uuid
 
 
+
 class Peer(Server,Client):
+
     """
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
@@ -27,6 +28,9 @@ class Peer(Server,Client):
     SERVER_PORT = 5000
     CLIENT_MIN_PORT_RANGE = 5001
     CLIENT_MAX_PORT_RANGE = 5010
+    SEEDER = 0
+    LEECHER = 1
+    PEER = 2
 
     def __init__(self, server_ip_address='0.0.0.0'):
         """
@@ -144,14 +148,14 @@ class Peer(Server,Client):
                 if True:
                     lock = threading.Lock()
                     lock.acquire()
-                    swarm = Swarm(self.fileName)
-                    swarm = self.announce_tracker.add_swarm(swarm)
-                    swarm.add_peer((str(host)+":"+str(port)))
-                    print("List of the peer in this swarm : " + self.fileName + " : ")
-                    print(swarm.get_peers())
+                    self.swarm.add_peer((str(host)+":"+str(port)))
+                    print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
+                    print(self.swarm.get_peers())
                     lock.release()
-                    #Tracker PWP to be setup and the bitfield to be setup
-                    #Create a data_structure in swarm to send back to peer
+                    #send the user list of peers to connect.
+                    #[]
+                    #Peer -> announcer. Announcer let the peer know I'm the one uplaoding 
+
             if not data: break
             print(data)
 
@@ -166,13 +170,18 @@ class Peer(Server,Client):
             #Start the Server
             server = Server(self.get_ip(),int(self.tracker_port))
             server._listen()
-      
+            self.swarm = Swarm(self.fileName)
             #Create an Empty Tracker with Server Instance
                 #Add the Swarm for the specific file to the tracker List
-            self.announce_tracker = Tracker(server)    
+            self.announce_tracker = Tracker(server)   
+            self.swarm = self.announce_tracker.add_swarm(self.swarm) 
+
+
 
             
             #Create the PWP Instance, Make sure you set all the bitfields to "You have the file"
+            self.pwp = PWP(self.num_pieces,1)
+            self.status = SEEDER
 
             #Listening for a handShake Message from the clients (Threading)
                 #Listening for request from peer to receive all the Peer Ips in the Swarm or Tracker
@@ -186,7 +195,7 @@ class Peer(Server,Client):
                     Thread(target=self.peer_handler, args=(server,clientsocket, host, port)).start()
                     
                     print("Peer Connectd: ", host,port)
-                    data = {'peerId': address[1]}
+                    data = {'clientid': address[1],'server_ip': self.external_ip}
                     server._send(clientsocket,data)
                     print("Peer: " + str(address[1]) + " just connected")
                 except Exception as error:
@@ -201,6 +210,7 @@ class Peer(Server,Client):
             print("Tracker Implementation")
 
         else:
+            
             self.client_tracker = Client()
             self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
 
@@ -208,7 +218,7 @@ class Peer(Server,Client):
             #Connect to the announce Ip address from torrent file
             
             #Send the handshake Message (Create Instance PWP)
-            pwp = PWP(self.num_pieces)
+            pwp = PWP(self.num_pieces,0)
             self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
             self.client_tracker.send({'handshake': self.handshake_message})
             print(pwp.msg._bitfield)

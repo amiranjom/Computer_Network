@@ -45,10 +45,21 @@ class Client(object):
         """
         self.client.connect((server_ip_address, server_port))
         data = self.receive()  # {'clientid': client_id, 'server_ip': server_ip}
-        self.peer_id = data['peerId']
-        #print("Client id " + str(self.client_id) + " connected to peer " + str(self.server_ip))
-       
-        #self.close()
+        client_id = data['clientid']
+        server_ip = data['server_ip']
+        self.server_ip = server_ip
+        self.client_id = client_id
+        print("Client id " + str(self.client_id) + " connected to peer " + str(self.server_ip))
+        while True:
+            try:
+                data = self.receive()
+                if not data:
+                    break
+                print(data)
+            except Exception as error:
+                print(error)
+        self.close()
+
 
     def send(self, data):
         data = pickle.dumps(data)

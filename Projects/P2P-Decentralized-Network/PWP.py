@@ -11,12 +11,12 @@ class PWP(object):
     PSTR = "BitTorrent protocol"
     PSTRLEN = 19
 
-    def __init__(self, num_pieces):
+    def __init__(self, num_pieces,seeder):
         """
         Class constructor
         """
         self.msg = Message()
-        self.msg.init_bitfield(num_pieces)
+        self.msg.init_bitfield(num_pieces,seeder)
 
     # noinspection PyMethodMayBeStatic
     def handshake(self, info_hash, peer_id, pstrlen=PSTRLEN, pstr=PSTR):

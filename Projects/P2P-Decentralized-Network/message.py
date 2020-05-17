@@ -102,7 +102,7 @@ class Message:
 
     #############################  Bitfield Methods ####################################################
 
-    def init_bitfield(self, num_pieces):
+    def init_bitfield(self, num_pieces, seeder):
         """
         Initializes the bitfield with predefined values
         :param num_pieces: the number of pieces defined in the .torrent file
@@ -112,10 +112,10 @@ class Message:
         spare_bits = (8 * size_bitfield) - num_pieces
         for i in range(size_bitfield - 1):
             piece_bitfield = bitarray(8)
-            piece_bitfield.setall(0)
+            piece_bitfield.setall(seeder)
             self._bitfield['bitfield'].append(piece_bitfield)
         spare_piece_bitfield = bitarray(spare_bits)
-        spare_piece_bitfield.setall(0)
+        spare_piece_bitfield.setall(seeder)
         self._bitfield['bitfield'].append(spare_piece_bitfield)
 
     def get_bitfield(self):
