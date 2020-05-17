@@ -128,6 +128,8 @@ class Peer(Server,Client):
         hash = hashlib.sha1()
         hash.update(info)
         self.info_hash = hash.digest()
+        print(info)
+        print(hash)
         print(hash.digest())
         self.external_ip = get('https://api.ipify.org').text
 
