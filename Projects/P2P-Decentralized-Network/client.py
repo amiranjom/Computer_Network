@@ -30,7 +30,7 @@ class Client(object):
 
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_id = None
+        self.peer_id = None
         self.student_name = "Amir "  # TODO: your name
         self.github_username = "joseortizcostadev"  # TODO: your username
         self.sid = 913774100
@@ -45,11 +45,10 @@ class Client(object):
         """
         self.client.connect((server_ip_address, server_port))
         data = self.receive()  # {'clientid': client_id, 'server_ip': server_ip}
-        self.client_id = data['clientid']
-        self.send("Hello")
+        self.peer_id = data['peerId']
         #print("Client id " + str(self.client_id) + " connected to peer " + str(self.server_ip))
        
-        self.close()
+        #self.close()
 
     def send(self, data):
         data = pickle.dumps(data)
@@ -64,3 +63,6 @@ class Client(object):
 
     def close(self):
         self.client.close()
+
+    def get_peerId(self):
+        return self.peer_id

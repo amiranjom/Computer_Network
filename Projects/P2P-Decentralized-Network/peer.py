@@ -4,11 +4,13 @@
 # Author: Jose Ortiz
 # client and server files are from lab 2. However, the server supports multi-threading like in lab 4
 
+import math
 from server import Server
 from tracker import Tracker
 from threading import Thread
 from client import Client
 from swarm import Swarm
+from pwp import PWP
 import torrent_parser as tp
 from requests import get
 import uuid
@@ -119,6 +121,8 @@ class Peer(Server,Client):
         self.fileName = parsed_torrent['info']['name']
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
+        self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
+        self.info_hash = parsed_torrent['info']['pieces']
         self.external_ip = get('https://api.ipify.org').text
 
 
@@ -156,9 +160,9 @@ class Peer(Server,Client):
                     # now do something with the clientsocket
                     # in this case, we'll pretend this is a threaded server
                     Thread(target=self.peer_handler, args=(server,clientsocket, address)).start()
-                    data = {'clientid': address[1]}
+                    data = {'peerId': address[1]}
                     server._send(clientsocket,data)
-                    print("Client: " + str(address[1]) + " just connected")
+                    print("Peer: " + str(address[1]) + " just connected")
                 except Exception as error:
                     print(error)
 
@@ -173,10 +177,13 @@ class Peer(Server,Client):
         else:
             self.client_tracker = Client()
             self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
+
                 #Handshake
             #Connect to the announce Ip address from torrent file
             
             #Send the handshake Message (Create Instance PWP)
+            pwp = PWP(self.num_pieces)
+            self.client_tracker.send(pwp.handShake(self.info_hash,self.client.get_peerId()))
             
             #Request list of Ip addresses from announce tracker
 
