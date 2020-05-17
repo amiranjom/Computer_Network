@@ -143,10 +143,9 @@ class Peer(Server,Client):
                 print("Outside")
                 if True:
                     print("Inside")
-                    swarm = Swarm(self.fileName)
+                    swarm = Swarm(self.fileName,(host+":"+port))
                     swarm = self.announce_tracker.add_swarm(swarm)
-                    swarm.add_peer(host+":"+port)
-                    print(swarm.peers)
+                    print(swarm.get_peers())
                     
                     #Tracker PWP to be setup and the bitfield to be setup
                     #Create a data_structure in swarm to send back to peer
