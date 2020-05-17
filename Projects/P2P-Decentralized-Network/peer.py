@@ -147,7 +147,8 @@ class Peer(Server,Client):
                     swarm = Swarm(self.fileName)
                     swarm = self.announce_tracker.add_swarm(swarm)
                     swarm.add_peer((str(host)+":"+str(port)))
-                    print("List of the peer in this swarm : " + self.fileName + " : " + swarm.get_peers())
+                    print("List of the peer in this swarm : " + self.fileName + " : ")
+                    print(swarm.get_peers())
                     lock.release()
                     #Tracker PWP to be setup and the bitfield to be setup
                     #Create a data_structure in swarm to send back to peer
