@@ -124,8 +124,11 @@ class Peer(Server,Client):
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
         self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
-        self.info_hash = hashlib.sha1(bencoding.bencode(parsed_torrent['info'])).digest()
-        print(self.info_hash)
+        info = bencoding.bencode(parsed_torrent['info'])
+        hash = hashlib.sha1()
+        hash.update(info)
+        self.info_hash = hash.digest()
+        print(hash.digest())
         self.external_ip = get('https://api.ipify.org').text
 
 
