@@ -156,7 +156,7 @@ class Peer(Server,Client):
                     # now do something with the clientsocket
                     # in this case, we'll pretend this is a threaded server
                     Thread(target=self.peer_handler, args=(server,clientsocket, address)).start()
-                    data = {'clientid': self.client_id}
+                    data = {'clientid': address[1]}
                     server._send(clientsocket,data)
                     print("Client: " + str(address[1]) + " just connected")
                 except Exception as error:
