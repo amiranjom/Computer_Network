@@ -1,7 +1,7 @@
 class Swarm(object):
 
-    def __init__(self,fileName,peer):
-        self.peers = [peer]
+    def __init__(self,fileName):
+        self.peers = []
         self.fileName = fileName
 
     def add_peer(self, peer):

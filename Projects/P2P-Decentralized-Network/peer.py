@@ -146,8 +146,9 @@ class Peer(Server,Client):
                     lock = threading.Lock()
                     lock.acquire()
                     print("Inside")
-                    swarm = Swarm(self.fileName,(str(host)+":"+str(port)))
+                    swarm = Swarm(self.fileName)
                     swarm = self.announce_tracker.add_swarm(swarm)
+                    swarm.add_peer((str(host)+":"+str(port)))
                     print(swarm.get_peers())
                     lock.release()
                     
