@@ -13,6 +13,8 @@ from swarm import Swarm
 from pwp import PWP
 import torrent_parser as tp
 from requests import get
+import bencoding
+import hashlib
 import uuid
 
 
@@ -122,7 +124,7 @@ class Peer(Server,Client):
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
         self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
-        self.info_hash = parsed_torrent['info']['pieces']
+        self.info_hash = hashlib.sha1(bencoding.bencode(parsed_torrent['info'])).hexdigest()
         self.external_ip = get('https://api.ipify.org').text
 
 
@@ -158,7 +160,7 @@ class Peer(Server,Client):
                     # accept connections from outside
                     (clientsocket, address) = server.serversocket.accept()
                     # now do something with the clientsocket
-                    # in this case, we'll pretend this is a threaded server
+                    # in this case, we'll thread the handler for each peer. peer <-> tracker (announce)
                     Thread(target=self.peer_handler, args=(server,clientsocket, address)).start()
                     data = {'peerId': address[1]}
                     server._send(clientsocket,data)
@@ -185,6 +187,8 @@ class Peer(Server,Client):
             pwp = PWP(self.num_pieces)
             handshake = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
             self.client_tracker.send(handshake)
+            while True:
+                pass
             
             #Request list of Ip addresses from announce tracker
 
