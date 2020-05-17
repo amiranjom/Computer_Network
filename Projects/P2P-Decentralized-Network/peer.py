@@ -183,7 +183,8 @@ class Peer(Server,Client):
             
             #Send the handshake Message (Create Instance PWP)
             pwp = PWP(self.num_pieces)
-            self.client_tracker.send(pwp.handShake(self.info_hash,self.client.get_peerId()))
+            handshake = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+            self.client_tracker.send(handshake)
             
             #Request list of Ip addresses from announce tracker
 
