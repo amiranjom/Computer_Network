@@ -147,6 +147,8 @@ class Peer(Server,Client):
             if 'handshake' in data:
                 if True:
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
+                    self.swarm.add_peer(data['tracker_info'])
+                    print(self.swarm.get_peers())
                     #send the user list of peers to connect.
                     #[]
                     #Peer -> announcer. Announcer let the peer know I'm the one uplaoding
@@ -236,8 +238,8 @@ class Peer(Server,Client):
            
             
             print(self.handshake_message)
-            self.client_tracker.send({'handshake': self.handshake_message})
-            print(pwp.message())
+
+            self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
             while True:
                 pass
             
