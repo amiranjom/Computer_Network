@@ -8,6 +8,7 @@ import math
 from server import Server
 from tracker import Tracker
 from threading import Thread
+import threading
 from client import Client
 from swarm import Swarm
 from PWP import PWP
@@ -142,10 +143,13 @@ class Peer(Server,Client):
             if 'handshake' in data:
                 print("Outside")
                 if True:
+                    lock = threading.Lock()
+                    lock.acquire()
                     print("Inside")
-                    swarm = Swarm(self.fileName,(host+":"+port))
+                    swarm = Swarm(self.fileName,(str(host)+":"+str(port)))
                     swarm = self.announce_tracker.add_swarm(swarm)
                     print(swarm.get_peers())
+                    lock.release()
                     
                     #Tracker PWP to be setup and the bitfield to be setup
                     #Create a data_structure in swarm to send back to peer
