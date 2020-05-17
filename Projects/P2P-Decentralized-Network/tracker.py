@@ -18,8 +18,13 @@ class Tracker(object):
         for i in self.swarm:
             if swarm.get_file_name() == i.get_file_name():
                 print("already exist")
+                return i
             else:
                 print("does not exist")
+                self.swarm.append(swarm)
+                return swarm
+        self.swarm.append(swarm)
+        return swarm
 """
         for s in self.swarm:
             if swarm.get_file_name() == s.get_file_name():
