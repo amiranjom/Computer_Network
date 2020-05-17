@@ -50,15 +50,7 @@ class Client(object):
         self.server_ip = server_ip
         self.client_id = client_id
         print("Client id " + str(self.client_id) + " connected to peer " + str(self.server_ip))
-        while True:
-            try:
-                data = self.receive()
-                if not data:
-                    break
-                print(data)
-            except Exception as error:
-                print(error)
-        self.close()
+        
 
 
     def send(self, data):

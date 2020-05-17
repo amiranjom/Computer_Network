@@ -146,15 +146,21 @@ class Peer(Server,Client):
                 #If the same, setup the swarm for that specific file 
             if 'handshake' in data:
                 if True:
-                    lock = threading.Lock()
-                    lock.acquire()
-                    self.swarm.add_peer((str(host)+":"+str(port)))
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
-                    print(self.swarm.get_peers())
-                    lock.release()
                     #send the user list of peers to connect.
                     #[]
-                    #Peer -> announcer. Announcer let the peer know I'm the one uplaoding 
+                    #Peer -> announcer. Announcer let the peer know I'm the one uplaoding
+                else :
+                    print("ERROR: info_hash did not match!")
+            elif "message" in data:
+                if data["message"]["id"] == 10:
+                    #hello
+                    pass
+                    #Tracker information of the peer Connected
+                    #Add the information to the swarm for other peers coming in.
+
+                message_id = data["message"]["id"]
+                message_payload = data["message"]["payload"]
 
             if not data: break
             print(data)
@@ -176,12 +182,10 @@ class Peer(Server,Client):
             self.announce_tracker = Tracker(server)   
             self.swarm = self.announce_tracker.add_swarm(self.swarm) 
 
-
-
             
             #Create the PWP Instance, Make sure you set all the bitfields to "You have the file"
             self.pwp = PWP(self.num_pieces,1)
-            self.status = SEEDER
+            self.status = self.SEEDER
 
             #Listening for a handShake Message from the clients (Threading)
                 #Listening for request from peer to receive all the Peer Ips in the Swarm or Tracker
@@ -210,7 +214,19 @@ class Peer(Server,Client):
             print("Tracker Implementation")
 
         else:
+            #Server Side of the Peer
+            self.server = Server()
+            self.server._listen()
+            print("Peer Tracker External Ip: " , self.external_ip)
+            #PWP SetUp Handshake and Tracker Message
+            pwp = PWP(self.num_pieces,0)
+            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+           
             
+            
+            #Peer also needs to create a server to add to the swarm
+                #Create the Tracker Request message and send it to other peers 
+
             self.client_tracker = Client()
             self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
 
@@ -218,10 +234,9 @@ class Peer(Server,Client):
             #Connect to the announce Ip address from torrent file
             
             #Send the handshake Message (Create Instance PWP)
-            pwp = PWP(self.num_pieces,0)
-            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+            print(self.handshake_message)
             self.client_tracker.send({'handshake': self.handshake_message})
-            print(pwp.msg._bitfield)
+            print(pwp.message())
             while True:
                 pass
             
