@@ -126,11 +126,9 @@ class Peer(Server,Client):
         self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
         info = bencoding.bencode(parsed_torrent['info'])
         hash = hashlib.sha1()
-        hash.update(info)
+        hash.update(repr(parsed_torrent['info']).encode('utf-8'))
         self.info_hash = hash.digest()
-        print(info)
-        print(hash)
-        print(hash.digest())
+        print(self.info_hash)
         self.external_ip = get('https://api.ipify.org').text
 
 
