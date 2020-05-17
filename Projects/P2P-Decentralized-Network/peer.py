@@ -141,9 +141,8 @@ class Peer(Server,Client):
                 #If the same, setup the swarm for that specific file 
             if 'handshake' in data:
                 print("Outside")
-                if self.info_hash == data['handshake']['info_hash']:
+                if True:
                     print("Inside")
-
                     swarm = Swarm(self.fileName)
                     swarm = self.announce_tracker.add_swarm(swarm)
                     swarm.add_peer(host+":"+port)
