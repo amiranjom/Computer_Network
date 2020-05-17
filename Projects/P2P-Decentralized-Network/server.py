@@ -65,6 +65,7 @@ class Server(object):
                 (clientsocket, address) = self.serversocket.accept()
                 # now do something with the clientsocket
                 # in this case, we'll pretend this is a threaded server
+               
                 Thread(target=self.client_thread, args=(clientsocket, address)).start()
                 print("Client: " + str(address[1]) + " just connected")
             except Exception as error:

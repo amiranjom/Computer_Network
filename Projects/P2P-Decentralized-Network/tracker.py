@@ -8,7 +8,11 @@ class Tracker(object):
 
     def __init__(self,server):
         self.server = server
+        self.swarm = []
         #Server.__init__(self,self.IP_ADDRESS,self.PORT)
+    
+    def add_swarm(self,swarm):
+        self.swarm.append(swarm)
 """
     def run(self):
         self._listen()

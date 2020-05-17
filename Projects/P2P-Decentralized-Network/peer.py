@@ -128,14 +128,19 @@ class Peer(Server,Client):
         self.external_ip = get('https://api.ipify.org').text
 
 
-    def peer_handler(self,server,clientsocket,address):
+    def peer_handler(self,server,clientsocket):
 
         while True:
             data = server._receive(clientsocket)
             #First thing check for handshake Message
-            #Compare it with the info_hash
+                #Compare it with the info_hash
+                #If the same, setup the swarm for that specific file 
             if 'handshake' in data:
-                print(data)
+                if self.info_hash == data['handshake']['info_hash']:
+                    swarm = Swarm(self.fileName)
+                    self.announce_tracker.add_swarm(swarm)
+                    #Tracker PWP to be setup and the bitfield to be setup
+                    #Create a data_structure in swarm to send back to peer
             if not data: break
             print(data)
 
@@ -166,7 +171,9 @@ class Peer(Server,Client):
                     (clientsocket, address) = server.serversocket.accept()
                     # now do something with the clientsocket
                     # in this case, we'll thread the handler for each peer. peer <-> tracker (announce)
-                    Thread(target=self.peer_handler, args=(server,clientsocket, address)).start()
+                    Thread(target=self.peer_handler, args=(server,clientsocket)).start()
+                    host,port = clientsocket.getpeername()
+                    print(host,port)
                     data = {'peerId': address[1]}
                     server._send(clientsocket,data)
                     print("Peer: " + str(address[1]) + " just connected")
@@ -190,8 +197,9 @@ class Peer(Server,Client):
             
             #Send the handshake Message (Create Instance PWP)
             pwp = PWP(self.num_pieces)
-            handshake = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
-            self.client_tracker.send({'handshake': handshake})
+            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+            self.client_tracker.send({'handshake': self.handshake_message})
+            print(pwp.msg._bitfield)
             while True:
                 pass
             
