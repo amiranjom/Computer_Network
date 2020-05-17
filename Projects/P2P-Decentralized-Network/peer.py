@@ -8,6 +8,7 @@ from server import Server
 from tracker import Tracker
 from threading import Thread
 from client import Client
+from swarm import Swarm
 import torrent_parser as tp
 from requests import get
 import uuid
@@ -27,8 +28,8 @@ class Peer(Server,Client):
         Class constructor
         :param server_ip_address: used when need to use the ip assigned by LAN
         """
-        Server.__init__(self)  # inherits methods from the server
-        Client.__init__(self)  # inherit methods from the client
+        #Server.__init__(self)  # inherits methods from the server
+        #Client.__init__(self)  # inherit methods from the client
         self.server_ip_address = server_ip_address
 
         self.id = uuid.uuid4()  # creates unique id for the peer
@@ -99,43 +100,34 @@ class Peer(Server,Client):
                 # wasting ports in the range of ports assigned if the client connection fails.
                 client_port += 1
     
-    def connect_to_tracker(self):
+    def check_if_announcer(self):
         if(self.external_ip == self.tracker_ip):
             print("You're the Announce, Setting Up the Tracker")
-            server = Server(self.get_ip(),int(self.tracker_port))
-            Thread(target=server._run).start()
-            self.tracker_announce = Tracker(server)
             #init for the announce
             ##setting up the blocks and initbitfield and pieces and ready to send
             return True
         else:
-            try:
-                self.client_tracker = Client()
-                self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
-                #Handshake
-                #Call the tracker and ask for all the peers IP address.
-                #[127:5000,127:5001]
-                return False
-            except Exception as error: 
-                print(error)   
-
-        """
-        try:
-            self.client_tracker = Client()
-            self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
-            return True
-        except Exception as error:
+            print("Peer: Connecting to announce Tracker")
             return False
-        """
+
     
     def parse_torrent(self,torrent_name):
         parsed_torrent = tp.parse_torrent_file(torrent_name)
         print("Torrent File " + torrent_name +
          " was parsed and the announce address is : " + parsed_torrent['announce'])
         tracker_ip_port = parsed_torrent['announce'].split(":")
+        self.fileName = parsed_torrent['info']['name']
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
         self.external_ip = get('https://api.ipify.org').text
+
+
+    def peer_handler(self,server,clientsocket,address):
+        while True:
+            data = server._receive(clientsocket)
+            if not data: break
+            print(data)
+
 
 
 
@@ -143,9 +135,60 @@ class Peer(Server,Client):
         #torrent_file = str(input("Enter the torrent file name with extension (.torrent): "))
         torrent_file = "age.torrent"
         self.parse_torrent(torrent_file)
-        if(self.connect_to_tracker()):
+        if(self.check_if_announcer()):
+            #Start the Server
+            server = Server(self.get_ip(),int(self.tracker_port))
+            server._listen()
+      
+            #Create an Empty Tracker with Server Instance
+                #Add the Swarm for the specific file to the tracker List
+            self.announce_tracker = Tracker(server)    
+
+            
+            #Create the PWP Instance, Make sure you set all the bitfields to "You have the file"
+
+            #Listening for a handShake Message from the clients (Threading)
+                #Listening for request from peer to receive all the Peer Ips in the Swarm or Tracker
+            while True:
+                try:
+                    # accept connections from outside
+                    (clientsocket, address) = server.serversocket.accept()
+                    # now do something with the clientsocket
+                    # in this case, we'll pretend this is a threaded server
+                    Thread(target=self.peer_handler, args=(server,clientsocket, address)).start()
+                    print("Client: " + str(address[1]) + " just connected")
+                except Exception as error:
+                    print(error)
+
+
+         
+
+            #Create the Empty Swarm
+                #Setting up a dic with status and upload speed to share to all users.
+    
             print("Tracker Implementation")
+
         else:
+            self.client_tracker = Client()
+            self.client_tracker.connect_to_server(self.tracker_ip,int(self.tracker_port))
+                #Handshake
+            #Connect to the announce Ip address from torrent file
+            
+            #Send the handshake Message (Create Instance PWP)
+            
+            #Request list of Ip addresses from announce tracker
+
+            #Connect to all the given Ip addresses from the tracker
+                #Send Handshake message to all the peers
+                    #If Interested and other Peers not choked Download Starts
+                    #
+
+            #Status: Choke and Not Interested
+            #Role: Leecher
+
+            #Request a Piece (Broad) 
+                #Resources to check the hash with the piece.
+                #Check if we have all the pieces to become seeder.    
             print("Peer Implementation")
 
 

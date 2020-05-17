@@ -86,6 +86,7 @@ class Server(object):
         """
         data = pickle.dumps(data)
         client_socket.send(data)
+        
 
     # noinspection PyMethodMayBeStatic
     def _receive(self, client_socket, max_buffer_size=4096):
