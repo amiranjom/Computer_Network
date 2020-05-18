@@ -96,21 +96,21 @@ class Peer(Server,Client):
         client_port = self.CLIENT_MIN_PORT_RANGE
         default_peer_port = self.SERVER_PORT
         for peer_ip in peer_ip_address :
-            if self.external_ip == peer_ip:
-                print("My own Ip")
-            else:
-                if client_port > self.CLIENT_MAX_PORT_RANGE:
-                    break
-                if ":" in peer_ip:  # checks if the ip address includes ports
-                    # This part is good if your P2P supports sharing different files
-                    # Then the same peer can run different servers in the same machine
-                    ip_and_port = peer_ip.split(":")
-                    peer_ip = ip_and_port[0]  # the ip address of the peer
-                    default_peer_port = int(ip_and_port[1])  # the port of the peer
+            if client_port > self.CLIENT_MAX_PORT_RANGE:
+                break
+            if ":" in peer_ip:  # checks if the ip address includes ports
+                # This part is good if your P2P supports sharing different files
+                # Then the same peer can run different servers in the same machine
+                ip_and_port = peer_ip.split(":")
+                peer_ip = ip_and_port[0]  # the ip address of the peer
+                default_peer_port = int(ip_and_port[1])  # the port of the peer
+            if self.external_ip != peer_ip:    
                 if self._connect_to_peer(client_port, peer_ip, default_peer_port):
                     # the client connected. incrementing the client port here prevents
                     # wasting ports in the range of ports assigned if the client connection fails.
                     client_port += 1
+            else:
+                print("Myself")
         
     def check_if_announcer(self):
         if(self.external_ip == self.tracker_ip):
