@@ -129,10 +129,9 @@ class Peer(Server,Client):
         self.tracker_ip = tracker_ip_port[0]
         self.tracker_port = tracker_ip_port[1]
         self.num_pieces = math.ceil(int(parsed_torrent['info']['length'])/int(parsed_torrent['info']['piece length']))
-        info = bencoding.bencode(parsed_torrent['info'])
         hash = hashlib.sha1()
         hash.update(repr(parsed_torrent['info']).encode('utf-8'))
-        self.info_hash = hash.digest()
+        self.info_hash = hash.hexdigest()
         print(self.info_hash)
         self.external_ip = get('https://api.ipify.org').text
 
@@ -149,6 +148,7 @@ class Peer(Server,Client):
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
                     self.swarm.add_peer(data['tracker_info'])
                     print(self.swarm.get_peers())
+                    self.announce_tracker.brodcast_peerIp(self.swarm.get_peers())
                     #send the user list of peers to connect.
                     #[]
                     #Peer -> announcer. Announcer let the peer know I'm the one uplaoding
@@ -160,6 +160,8 @@ class Peer(Server,Client):
                     pass
                     #Tracker information of the peer Connected
                     #Add the information to the swarm for other peers coming in.
+                if data["message"]["id"] == 5:
+                    pass
 
                 message_id = data["message"]["id"]
                 message_payload = data["message"]["payload"]
@@ -218,6 +220,7 @@ class Peer(Server,Client):
         else:
             #Server Side of the Peer
             self.server = Server()
+            self.tracker = Tracker(self.server)
             self.server._listen()
             print("Peer Tracker External Ip: ", self.external_ip)
            
@@ -240,6 +243,8 @@ class Peer(Server,Client):
             print(self.handshake_message)
 
             self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
+            data = self.client_tracker.receive()
+            print(data)
             while True:
                 pass
             

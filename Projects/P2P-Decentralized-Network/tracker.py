@@ -20,3 +20,6 @@ class Tracker(object):
                 return swarm
         self.swarm.append(swarm)
         return swarm
+    
+    def brodcast_peerIp(self,ip):
+        self.server.send_to_all(ip)

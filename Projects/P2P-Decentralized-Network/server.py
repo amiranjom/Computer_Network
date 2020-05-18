@@ -29,12 +29,13 @@ from threading import Thread
 
 class Server(object):
 
-    def __init__(self, ip_address='127.0.0.1', port=5000):
+    def __init__(self, ip_address='127.0.0.1', port=5002):
         # create an INET, STREAMing socket
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # bind the socket to a public host, and a well-known port
         self.ip = ip_address
         self.port = port
+        self.global_clientSockets = []
 
         self.serversocket.bind((ip_address, port))
 
@@ -63,6 +64,7 @@ class Server(object):
             try:
                 # accept connections from outside
                 (clientsocket, address) = self.serversocket.accept()
+                self.global_clientSockets.append(clientsocket)
                 # now do something with the clientsocket
                 # in this case, we'll pretend this is a threaded server
                
