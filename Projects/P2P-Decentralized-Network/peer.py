@@ -148,7 +148,9 @@ class Peer(Server,Client):
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
                     self.swarm.add_peer(data['tracker_info'])
                     print(self.swarm.get_peers())
-                    self.server._send(clientsocket,self.swarm.get_peers())
+                    server._send(clientsocket,{'ip_list': self.swarm.get_peers()})
+                    self.handshake_message = self.pwp.handshake(self.info_hash,self.id)
+                    server._send(clientsocket,{'handshake': self.handshake_message})
                     #self.announce_tracker.brodcast_peerIp(self.swarm.get_peers())
                     #send the user list of peers to connect.
                     #[]
@@ -176,7 +178,13 @@ class Peer(Server,Client):
     def server_listener(self):
         while True:
             data = self.client_tracker.receive()
-            if not data: break
+            if not data: 
+                break
+            if 'ip_list': 
+                self.peer_list = data['ip_list']
+            if 'handshake' in data:
+                if True:
+                    print("Connected")
             print(data)
 
 
@@ -197,6 +205,7 @@ class Peer(Server,Client):
             
             #Create the PWP Instance, Make sure you set all the bitfields to "You have the file"
             self.pwp = PWP(self.num_pieces,1)
+
             self.status = self.SEEDER
 
             #Listening for a handShake Message from the clients (Threading)
@@ -211,7 +220,7 @@ class Peer(Server,Client):
                     Thread(target=self.peer_handler, args=(server,clientsocket, host, port)).start()
                     
                     print("Peer Connectd: ", host,port)
-                    data = {'clientid': address[1],'server_ip': self.external_ip}
+                    data = {'clientid': self.id,'server_ip': self.external_ip}
                     server._send(clientsocket,data)
                     print("Peer: " + str(address[1]) + " just connected")
                 except Exception as error:
@@ -245,9 +254,8 @@ class Peer(Server,Client):
             #Send the handshake Message (Create Instance PWP)
              #PWP SetUp Handshake and Tracker Message
             pwp = PWP(self.num_pieces,0)
-            self.handshake_message = pwp.handshake(self.info_hash,self.client_tracker.get_peerId())
+            self.handshake_message = pwp.handshake(self.info_hash,self.id)
            
-            
             print(self.handshake_message)
 
             self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
