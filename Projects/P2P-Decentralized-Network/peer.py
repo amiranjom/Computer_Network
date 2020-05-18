@@ -25,9 +25,9 @@ class Peer(Server,Client):
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
     """
-    SERVER_PORT = 5000
-    CLIENT_MIN_PORT_RANGE = 5001
-    CLIENT_MAX_PORT_RANGE = 5010
+    SERVER_PORT = 10000
+    CLIENT_MIN_PORT_RANGE = 10001
+    CLIENT_MAX_PORT_RANGE = 10010
     SEEDER = 0
     LEECHER = 1
     PEER = 2
@@ -87,7 +87,7 @@ class Peer(Server,Client):
             client.close()
             return False
 
-    def connect(self, peers_ip_addresses):
+    def connect(self, peer_ip_address):
         """
         With this function this peer creates multiple clients that connect to multiple peers
         :param peers_ip_addresses: the ip addresses of the peers (their servers ip_addresses)
@@ -95,20 +95,23 @@ class Peer(Server,Client):
         """
         client_port = self.CLIENT_MIN_PORT_RANGE
         default_peer_port = self.SERVER_PORT
-        for peer_ip in peers_ip_addresses:
-            if client_port > self.CLIENT_MAX_PORT_RANGE:
-                break
-            if "/" in peer_ip:  # checks if the ip address includes ports
-                # This part is good if your P2P supports sharing different files
-                # Then the same peer can run different servers in the same machine
-                ip_and_port = peer_ip.split("/")
-                peer_ip = ip_and_port[0]  # the ip address of the peer
-                default_peer_port = int(ip_and_port[1])  # the port of the peer
-            if self._connect_to_peer(client_port, peer_ip, default_peer_port):
-                # the client connected. incrementing the client port here prevents
-                # wasting ports in the range of ports assigned if the client connection fails.
-                client_port += 1
-    
+        for peer_ip in peer_ip_address :
+            if self.external_ip == peer_ip:
+                print("My own Ip")
+            else:
+                if client_port > self.CLIENT_MAX_PORT_RANGE:
+                    break
+                if ":" in peer_ip:  # checks if the ip address includes ports
+                    # This part is good if your P2P supports sharing different files
+                    # Then the same peer can run different servers in the same machine
+                    ip_and_port = peer_ip.split(":")
+                    peer_ip = ip_and_port[0]  # the ip address of the peer
+                    default_peer_port = int(ip_and_port[1])  # the port of the peer
+                if self._connect_to_peer(client_port, peer_ip, default_peer_port):
+                    # the client connected. incrementing the client port here prevents
+                    # wasting ports in the range of ports assigned if the client connection fails.
+                    client_port += 1
+        
     def check_if_announcer(self):
         if(self.external_ip == self.tracker_ip):
             print("You're the Announce, Setting Up the Tracker")
@@ -148,9 +151,10 @@ class Peer(Server,Client):
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
                     self.swarm.add_peer(data['tracker_info'])
                     print(self.swarm.get_peers())
-                    server._send(clientsocket,{'ip_list': self.swarm.get_peers()})
+                    
                     self.handshake_message = self.pwp.handshake(self.info_hash,self.id)
                     server._send(clientsocket,{'handshake': self.handshake_message})
+                    server._send(clientsocket,{'ip_list': self.swarm.get_peers()})
                     #self.announce_tracker.brodcast_peerIp(self.swarm.get_peers())
                     #send the user list of peers to connect.
                     #[]
@@ -180,8 +184,10 @@ class Peer(Server,Client):
             data = self.client_tracker.receive()
             if not data: 
                 break
-            if 'ip_list': 
+            if 'ip_list' in data: 
                 self.peer_list = data['ip_list']
+                #Connect to all these peers and move forward
+                self.connect(self.peer_list)
             if 'handshake' in data:
                 if True:
                     print("Connected")
