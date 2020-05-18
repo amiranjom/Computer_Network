@@ -25,7 +25,7 @@ class Peer(Server,Client):
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
     """
-    SERVER_PORT = 10000
+    SERVER_PORT = 10013
     CLIENT_MIN_PORT_RANGE = 10001
     CLIENT_MAX_PORT_RANGE = 10010
     SEEDER = 0
@@ -102,15 +102,18 @@ class Peer(Server,Client):
                 # This part is good if your P2P supports sharing different files
                 # Then the same peer can run different servers in the same machine
                 ip_and_port = peer_ip.split(":")
-                peer_ip = ip_and_port[0]  # the ip address of the peer
+                peerIp = ip_and_port[0]  # the ip address of the peer
                 default_peer_port = int(ip_and_port[1])  # the port of the peer
-            if self.external_ip != peer_ip:    
-                if self._connect_to_peer(client_port, peer_ip, default_peer_port):
+            if (str(self.external_ip)+":"+str(self.SERVER_PORT)) != peer_ip:  
+                print("Connecting to Peer .....")  
+                if self._connect_to_peer(client_port, '127.0.0.1', default_peer_port):
                     # the client connected. incrementing the client port here prevents
                     # wasting ports in the range of ports assigned if the client connection fails.
                     client_port += 1
             else:
                 print("Myself")
+                print(str(self.external_ip)+":"+str(self.SERVER_PORT))
+                print(peer_ip)
         
     def check_if_announcer(self):
         if(self.external_ip == self.tracker_ip):
@@ -139,7 +142,7 @@ class Peer(Server,Client):
         self.external_ip = get('https://api.ipify.org').text
 
 
-    def peer_handler(self,server,clientsocket,host,port):
+    def peer_handler(self,server,clientsocket):
 
         while True:
             data = server._receive(clientsocket)
@@ -147,6 +150,7 @@ class Peer(Server,Client):
                 #Compare it with the info_hash
                 #If the same, setup the swarm for that specific file 
             if 'handshake' in data:
+                print("I've PRoved the point")
                 if True:
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
                     self.swarm.add_peer(data['tracker_info'])
@@ -179,7 +183,8 @@ class Peer(Server,Client):
     def send_request(self, id, payload=None):
             msg = self.pwp.message(payload,id)
 
-    def server_listener(self):
+    #To communicate with the Tracker announce and listen
+    def tracker_listener(self):
         while True:
             data = self.client_tracker.receive()
             if not data: 
@@ -192,6 +197,22 @@ class Peer(Server,Client):
                 if True:
                     print("Connected")
             print(data)
+
+    def server_acceptance(self):
+        while True:
+                try:
+                    # accept connections from outside
+                    (clientsocket, address) = self.server.serversocket.accept()
+                    # now do something with the clientsocket
+                    # in this case, we'll thread the handler for each peer. peer <-> tracker (announce)
+                    host,port = clientsocket.getpeername()
+                    Thread(target=self.peer_handler, args=(self.server,clientsocket)).start()
+                    print("Peer Connectd: ", host,port)
+                    data = {'clientid': self.id,'server_ip': self.external_ip}
+                    server._send(clientsocket,data)
+                    print("Peer: " + str(address[1]) + " just connected")
+                except Exception as error:
+                    print(error)
 
 
     def run(self):
@@ -223,7 +244,7 @@ class Peer(Server,Client):
                     # now do something with the clientsocket
                     # in this case, we'll thread the handler for each peer. peer <-> tracker (announce)
                     host,port = clientsocket.getpeername()
-                    Thread(target=self.peer_handler, args=(server,clientsocket, host, port)).start()
+                    Thread(target=self.peer_handler, args=(server,clientsocket)).start()
                     
                     print("Peer Connectd: ", host,port)
                     data = {'clientid': self.id,'server_ip': self.external_ip}
@@ -232,19 +253,19 @@ class Peer(Server,Client):
                 except Exception as error:
                     print(error)
 
-
-         
-
             #Create the Empty Swarm
                 #Setting up a dic with status and upload speed to share to all users.
     
             print("Tracker Implementation")
 
         else:
+            #TODO While loop for server to accept incoming connections and handle them!!!!
             #Server Side of the Peer
-            self.server = Server()
+            self.server = Server(port=self.SERVER_PORT)
             self.tracker = Tracker(self.server)
             self.server._listen()
+            Thread(target=self.server_acceptance).start()
+
             print("Peer Tracker External Ip: ", self.external_ip)
            
             
@@ -267,9 +288,7 @@ class Peer(Server,Client):
             self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
             #thread to recieve the ip address
 
-            Thread(target=self.server_listener).start()
-            
-
+            Thread(target=self.tracker_listener).start()
             
                 
             
