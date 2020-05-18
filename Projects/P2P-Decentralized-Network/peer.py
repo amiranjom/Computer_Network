@@ -148,7 +148,8 @@ class Peer(Server,Client):
                     print("New Peer Connected!!! List of the peer in this swarm : " + self.fileName + " : ")
                     self.swarm.add_peer(data['tracker_info'])
                     print(self.swarm.get_peers())
-                    self.announce_tracker.brodcast_peerIp(self.swarm.get_peers())
+                    self.server._send(clientsocket,self.swarm.get_peers())
+                    #self.announce_tracker.brodcast_peerIp(self.swarm.get_peers())
                     #send the user list of peers to connect.
                     #[]
                     #Peer -> announcer. Announcer let the peer know I'm the one uplaoding
@@ -169,7 +170,14 @@ class Peer(Server,Client):
             if not data: break
             print(data)
 
+    def send_request(self, id, payload=None):
+            msg = self.pwp.message(payload,id)
 
+    def server_listener(self):
+        while True:
+            data = self.client_tracker.receive()
+            if not data: break
+            print(data)
 
 
     def run(self):
@@ -243,10 +251,13 @@ class Peer(Server,Client):
             print(self.handshake_message)
 
             self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
-            data = self.client_tracker.receive()
-            print(data)
-            while True:
-                pass
+            #thread to recieve the ip address
+
+            Thread(target=self.server_listener).start()
+            
+
+            
+                
             
             #Request list of Ip addresses from announce tracker
 
