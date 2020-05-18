@@ -25,7 +25,7 @@ class Peer(Server,Client):
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
     """
-    SERVER_PORT = 10013
+    SERVER_PORT = 10016
     CLIENT_MIN_PORT_RANGE = 10001
     CLIENT_MAX_PORT_RANGE = 10010
     SEEDER = 0
@@ -66,7 +66,7 @@ class Peer(Server,Client):
         client = Client()
         try:
             # binds the client to the ip address assigned by LAN
-            client.bind('0.0.0.0', client_port_to_bind)  # note: when you bind, the port bound will be the client id
+            #client.bind('0.0.0.0', client_port_to_bind)  # note: when you bind, the port bound will be the client id
             Thread(target=client.connect_to_server, args=(peer_ip_address, peer_port)).start()  # threads server
             return True
         except Exception as error:
@@ -209,7 +209,7 @@ class Peer(Server,Client):
                     Thread(target=self.peer_handler, args=(self.server,clientsocket)).start()
                     print("Peer Connectd: ", host,port)
                     data = {'clientid': self.id,'server_ip': self.external_ip}
-                    server._send(clientsocket,data)
+                    self.server._send(clientsocket,data)
                     print("Peer: " + str(address[1]) + " just connected")
                 except Exception as error:
                     print(error)
@@ -262,9 +262,7 @@ class Peer(Server,Client):
             #TODO While loop for server to accept incoming connections and handle them!!!!
             #Server Side of the Peer
             self.server = Server(port=self.SERVER_PORT)
-            self.tracker = Tracker(self.server)
-            self.server._listen()
-            Thread(target=self.server_acceptance).start()
+            
 
             print("Peer Tracker External Ip: ", self.external_ip)
            
@@ -290,6 +288,10 @@ class Peer(Server,Client):
 
             Thread(target=self.tracker_listener).start()
             
+            self.tracker = Tracker(self.server)
+            self.server._listen()
+            Thread(target=self.server_acceptance).start()
+
                 
             
             #Request list of Ip addresses from announce tracker
