@@ -25,7 +25,7 @@ class Peer(Server,Client):
     In this part of the peer class we implement methods to connect to multiple peers.
     Once the connection is created downloading data is done in similar way as in TCP assigment.
     """
-    SERVER_PORT = 10016
+    SERVER_PORT = 10024
     CLIENT_MIN_PORT_RANGE = 10001
     CLIENT_MAX_PORT_RANGE = 10010
     SEEDER = 0
@@ -68,6 +68,7 @@ class Peer(Server,Client):
             # binds the client to the ip address assigned by LAN
             #client.bind('0.0.0.0', client_port_to_bind)  # note: when you bind, the port bound will be the client id
             Thread(target=client.connect_to_server, args=(peer_ip_address, peer_port)).start()  # threads server
+
             return True
         except Exception as error:
             print(error)  # client failed to bind or connect to server
@@ -105,7 +106,7 @@ class Peer(Server,Client):
                 peerIp = ip_and_port[0]  # the ip address of the peer
                 default_peer_port = int(ip_and_port[1])  # the port of the peer
             if (str(self.external_ip)+":"+str(self.SERVER_PORT)) != peer_ip:  
-                print("Connecting to Peer .....")  
+                print("Connecting to Peer .....", peerIp, "and", default_peer_port)  
                 if self._connect_to_peer(client_port, '127.0.0.1', default_peer_port):
                     # the client connected. incrementing the client port here prevents
                     # wasting ports in the range of ports assigned if the client connection fails.
@@ -216,8 +217,8 @@ class Peer(Server,Client):
 
 
     def run(self):
-        #torrent_file = str(input("Enter the torrent file name with extension (.torrent): "))
-        torrent_file = "age.torrent"
+        torrent_file = str(input("Enter the torrent file name with extension (.torrent): "))
+        #torrent_file = "age.torrent"
         self.parse_torrent(torrent_file)
         if(self.check_if_announcer()):
             #Start the Server
@@ -283,9 +284,13 @@ class Peer(Server,Client):
            
             print(self.handshake_message)
 
+            #Request list of Ip addresses from announce tracker
+            #Connect to all the given Ip addresses from the tracker
+                #Send Handshake message to all the peers
+                    #If Interested and other Peers not choked Download Starts
             self.client_tracker.send({'handshake': self.handshake_message, 'tracker_info': (str(self.external_ip)+":"+str(self.server.port))})
-            #thread to recieve the ip address
-
+            
+            #Thread to recieve the ip address
             Thread(target=self.tracker_listener).start()
             
             self.tracker = Tracker(self.server)
@@ -294,12 +299,8 @@ class Peer(Server,Client):
 
                 
             
-            #Request list of Ip addresses from announce tracker
-
-            #Connect to all the given Ip addresses from the tracker
-                #Send Handshake message to all the peers
-                    #If Interested and other Peers not choked Download Starts
-                    #
+            
+            
 
             #Status: Choke and Not Interested
             #Role: Leecher
@@ -307,7 +308,7 @@ class Peer(Server,Client):
             #Request a Piece (Broad) 
                 #Resources to check the hash with the piece.
                 #Check if we have all the pieces to become seeder.    
-            print("Peer Implementation")
+        
 
 
 

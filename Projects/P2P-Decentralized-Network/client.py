@@ -47,7 +47,6 @@ class Client(object):
         self.server_ip = server_ip
         self.client_id = client_id
         print("Client id " + str(self.client_id) + " connected to peer " + str(self.server_ip))            
-
     def send(self, data):
         data = pickle.dumps(data)
         self.client.send(data)

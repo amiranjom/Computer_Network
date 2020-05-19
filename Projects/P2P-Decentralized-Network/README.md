@@ -2,12 +2,39 @@
 
 Please use this README file to provide the following documentation for this project:
 
-* Your name and student id
-* General description of the project (a few sentences)
+* Amir R. Anjomshoaa
+* General description of the project:
+  * In this project we are implementing decentralized P2P network and implementing bitTorrent protocol on top of that. 
+  * This system beacuse of being decentralized it removes the single point of failure and its great for scaling as it the network gets bigger.
+  * This Project is a client based and can read-in a torrent file and connect to a server to download the file requested.
+  * Data gets sent over in this project chunk by chunk and breaking the piece into small blocks. 
 * If you used external Python modules/libraries. Provide a requeriments.txt file  
-* Python version and compatibility issues (if any)
-* Clear and specific instructions about how to run your project. If your project does not run or contains errors, you'll get a 0 in the project no matter how much work you put on it. So, test your code properly and make sure that it runs without errors.
-* A few sentences about all the challenges you found during the implementation of this project and how you overcame them. Please be honest here. 
+* Python version: 3.8
+* Clear and specific instructions about how to run your project. If your project does not run or contains errors, you'll get a 0 in the project no matter how much work you put on it. So, test your code properly and make sure that it runs without errors:
+  1. If you're the announcer trying to run the server with the complete file to serve, Check your torrent file and make sure you have your external port posted as the announce value and have the announce format as following: 
+
+      `'announce': ipAddress:Port` 
+  
+  2. If you're the peer trying to connect to a specific swarm, Make sure you have the correct announce ip addressa and port, and also the fileName is correct. 
+
+      `'announce': ipAddress:Port`
+
+      `'info': {'name': filename}`
+
+  * Make sure you have the torrent file in the main directory of the project
+  * Running the project just 
+  
+    `python3 peer.py` 
+
+* A few sentences about all the challenges you found during the implementation of this project and how you overcame them:
+  * Multiple challenges and problems occured during the process of this project, and the main reason of the system not working completely. 
+  * Some of the problems I faced during the process was:
+    1. Understanding the concept of decentrlized network.
+    2. Understanding bittorrent protocol.
+    3. First time approaching and desiging this big of a system
+  * There were moments in the project that the problem wasn't necessarily the coding aspect of the system. But more as in how is this protocol going to be implemented on top of decentralized network of TCP. To be able to understand the process well I broke down the assignment into smaller pieces.
+  * One of the important challenges I had in the process that helped me to understand the concept better was the main seeder in the network and the implementation starts from there. TO be able to understand this topic I had to go back and forth between two peer which one is just a seeder in this case our main tracker and the second peer who's the first person after the tracker in the server. I start from small to work toward scalable project to implement.
+  * As the project went forward I had many issues coming up in architecture of my program. As not a experinced programmer with python and not developing huge systems, I came across lot of issues that I needed to revisit and revise.  
 
 ## Note that failure to provide the above docs will result in a 30% deduction in your final grade for this project. 
 
