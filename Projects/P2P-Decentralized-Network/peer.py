@@ -107,7 +107,7 @@ class Peer(Server,Client):
                 default_peer_port = int(ip_and_port[1])  # the port of the peer
             if (str(self.external_ip)+":"+str(self.SERVER_PORT)) != peer_ip:  
                 print("Connecting to Peer .....", peerIp, "and", default_peer_port)  
-                if self._connect_to_peer(client_port, '127.0.0.1', default_peer_port):
+                if self._connect_to_peer(client_port, peerIp, default_peer_port):
                     # the client connected. incrementing the client port here prevents
                     # wasting ports in the range of ports assigned if the client connection fails.
                     client_port += 1
